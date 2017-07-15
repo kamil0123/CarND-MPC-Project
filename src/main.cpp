@@ -101,6 +101,17 @@ int main() {
           double steer_value;
           double throttle_value;
 
+          // Transform waypoints from map's coordinate system to car's coordinate system
+          for (int i = 0; i < ptsx.size(); i++) {
+            double shift_x = ptsx[i].px;
+            double shift_y = ptsy[i].py;
+
+            ptsx[i] = (shift_x*cos(0-psi) - shift_y*sin(0-psi));
+            ptsy[i] = (shift_x*sin(0-psi) - shift_y*cos(0-psi));
+          }
+
+
+
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
