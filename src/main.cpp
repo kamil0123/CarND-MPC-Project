@@ -98,8 +98,6 @@ int main() {
           * Both are in between [-1, 1].
           *
           */
-          double steer_value;
-          double throttle_value;
 
           // Transform waypoints from map's coordinate system to car's coordinate system
           for (int i = 0; i < ptsx.size(); i++) {
@@ -110,7 +108,17 @@ int main() {
             ptsy[i] = (shift_x*sin(0-psi) - shift_y*cos(0-psi));
           }
 
+          double* ptrx = &ptsx[0];
+          Eigen::Map<Eigen::VectorXd> ptsx_transformation(ptrx, 6);
 
+          double* ptry = &ptsy[0];
+          Eigen::Map<Eigen::VectorXd> ptsy_transformation(ptry, 6);
+
+          auto coeffs = polyfit(ptsx_transformation, ptsy_transformation, 3);
+
+          // calculate cte and epsi
+          double cte = polyeval(coeffs, 0);
+          double epsi = -atan(coeffs[1]);
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
