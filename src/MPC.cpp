@@ -115,6 +115,12 @@ class FG_eval {
       AD<double> delta0 = vars[delta_start + t - 1];
       AD<double> a0 = vars[a_start + t - 1];
 
+      // add latency time
+      if (t > 1) {   
+        a0 = vars[a_start + t - 2];
+        delta0 = vars[delta_start + t - 2];
+      }
+
       AD<double> f0 = coeffs[0] + coeffs[1] * x0;
       AD<double> psides0 = CppAD::atan(coeffs[1]);
 
