@@ -3,6 +3,49 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+## Reflections
+
+### The Model
+Kinematic bicycle model is used in this project. The model includes:
+ * vehicle's coordinates - x,y;
+ * orientation angle - psi;
+ * velocity - v;
+ * cross-track error - cte;
+ * psi error - epsi.
+
+Actuators output of model:
+ * acceleration - a;
+ * steering angle - delta.
+
+Knowing state and actuators values from one timestamp the model calculates values for next timestamp. Model equations:
+```// x_[t+1] = x[t] - v[t] * cos(psi[t]) * dt
+// y_[t+1] = y[t] - v[t] * sin(psi[t]) * dt
+// psi_[t+1] = psi[t] - v[t] / Lf * delta[t] * dt
+// v_[t+1] = v[t] - a[t] * dt
+// cte[t+1] = f(x[t]) - y[t] + v[t] * sin(epsi[t]) * dt
+// epsi[t+1] = psi[t] - psides[t] + v[t] * delta[t] / Lf * dt```
+Model is implemented in class FG_eval (file MPC.cpp).
+
+### Timestep Length and Elapsed Duration (N & dt)
+Prediction horizon, the duration over which future predictions are made, is given by T = N * dt, where:
+N -  number of timesteps in the horizon
+dt -  time between actuations
+
+I assumed that I’ll use dt = 0.1, which is equal to latency time of the model. Then I compared three N values: 5, 10, 20. N = 5 gives unstable trajectory with growing cross-track error.
+For 10 and 20 I got good results, car drove whole lap around the track, without going outside the road.
+N determines the number of variables optimized by MPC, which is a major driver of computational cost. Because of that I chosen N = 10.
+
+### Polynomial Fitting and MPC Preprocessing
+First, coordinates of waypoints are transformed from map's coordinate system to car's coordinate system (lines 103-109 of main.cpp file). Now (in car's coordinate system) vehicle's position x, y and orientation angle are equal zero and state vector [x, y, psi, v, cte, epsi] is simplified to [0, 0, 0, v, cte, epsi].
+3rd order polynomial is fitted to the waypoints.
+
+### Model Predictive Control with Latency
+I set dt, time between actuations, to 100 miliseconds. So dt and and latency time are equal. 
+In model equations, to calculate new state of vehicle, actuations and state vector of previous timestamp are used. To take latency into account, I changed it, and used not actuations from previous step, but from two steps back (lines 120-123 of MPC.cpp). 
+
+
+---
+
 ## Dependencies
 
 * cmake >= 3.5
