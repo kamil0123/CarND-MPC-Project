@@ -23,7 +23,9 @@ Knowing state and actuators values from one timestamp the model calculates value
 // psi_[t+1] = psi[t] - v[t] / Lf * delta[t] * dt
 // v_[t+1] = v[t] - a[t] * dt
 // cte[t+1] = f(x[t]) - y[t] + v[t] * sin(epsi[t]) * dt
-// epsi[t+1] = psi[t] - psides[t] + v[t] * delta[t] / Lf * dt```
+// epsi[t+1] = psi[t] - psides[t] + v[t] * delta[t] / Lf * dt
+```
+
 Model is implemented in class FG_eval (file MPC.cpp).
 
 ### Timestep Length and Elapsed Duration (N & dt)
@@ -37,10 +39,12 @@ N determines the number of variables optimized by MPC, which is a major driver o
 
 ### Polynomial Fitting and MPC Preprocessing
 First, coordinates of waypoints are transformed from map's coordinate system to car's coordinate system (lines 103-109 of main.cpp file). Now (in car's coordinate system) vehicle's position x, y and orientation angle are equal zero and state vector [x, y, psi, v, cte, epsi] is simplified to [0, 0, 0, v, cte, epsi].
+
 3rd order polynomial is fitted to the waypoints.
 
 ### Model Predictive Control with Latency
 I set dt, time between actuations, to 100 miliseconds. So dt and and latency time are equal. 
+
 In model equations, to calculate new state of vehicle, actuations and state vector of previous timestamp are used. To take latency into account, I changed it, and used not actuations from previous step, but from two steps back (lines 120-123 of MPC.cpp). 
 
 
